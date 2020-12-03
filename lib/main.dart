@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:tionico/Class/Usuario.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 import 'package:tionico/template.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:tionico/utils.dart';
 
 import 'MOBX/STORE.dart';
@@ -48,12 +51,20 @@ class _SplashScreenState extends State<SplashScreen> {
       print(">>>>>>>>>>>>>>");
       print(response.data);
 
-      if (response.data['status'] == "Token de Autorização não encontrada!") {
-        // toastAviso("Falha ao consultar dados.");
-        return Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) {
-          return new LoginPage();
-        }));
+      switch (response.data['status']) {
+        case "Token de Autorização não encontrada!":
+        case "Token expirado":
+        case "Token é inválido":
+          
+          toastAviso("falha ao obter o token");
+
+          return Navigator.of(context)
+              .push(new MaterialPageRoute(builder: (context) {
+            return new LoginPage();
+          }));
+
+          break;
+        default:
       }
 
       Usuario user = Usuario.fromMap(response.data);

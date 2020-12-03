@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -60,6 +61,10 @@ class _PerfilPageState extends State<PerfilPage> {
                   SizedBox(
                     height: 80,
                   ),
+                  Image.asset(
+                    "assets/person.png",
+                    width: MediaQuery.of(context).size.width / 2,
+                  ),
                   Text("${userStore.usuario.name}",
                       style: GoogleFonts.poppins(fontSize: 18)),
                   Text("${userStore.usuario.email}",
@@ -88,6 +93,8 @@ class _PerfilPageState extends State<PerfilPage> {
                               saveSharedPreferences('access_token', "");
 
                               // userStore.usuario = null;
+
+                              EasyLoading.dismiss();
 
                               return Navigator.of(context).push(
                                   new MaterialPageRoute(builder: (context) {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tionico/Class/Produto.dart';
 import 'package:tionico/Class/Usuario.dart';
 import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
@@ -99,14 +100,14 @@ class _LoginPageState extends State<LoginPage> {
         style: GoogleFonts.poppins(),
         decoration: InputDecoration(
           focusedBorder:
-              UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+              UnderlineInputBorder(borderSide: BorderSide(color: Colors.teal)),
           hintText: 'usuário',
           hintStyle: TextStyle(color: Colors.black38),
           helperText: 'ex: joao.silva',
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,
-            color: Colors.green,
+            color: Colors.orange,
           ),
         ),
         validator: (value) =>
@@ -129,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
         controller: _passwordController,
         decoration: new InputDecoration(
             focusedBorder:
-                UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+                UnderlineInputBorder(borderSide: BorderSide(color: Colors.teal)),
             hintText: 'senha',
             hintStyle: TextStyle(color: Colors.black38),
             helperText: "OBS: Toque no cadeado para conferir a senha",
@@ -140,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: new Icon(
                 showPassword ? Icons.lock_open : Icons.lock,
-                color: Colors.blue,
+                color: Colors.orange,
               ),
             )),
         validator: (value) => value.isEmpty ? 'Infome sua senha' : null,
@@ -153,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
       return Padding(
         padding: EdgeInsets.only(top: 45),
         child: SpinKitThreeBounce(
-          color: Colors.yellow,
+          color: Colors.teal,
           size: 30,
         ),
       );
@@ -167,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             width: 150,
             decoration: BoxDecoration(
-              color: Colors.amber,
+              color: Colors.teal,
               borderRadius: BorderRadius.all(Radius.circular(15.0)),
             ),
             child: FlatButton(
@@ -199,9 +200,9 @@ class _LoginPageState extends State<LoginPage> {
               return new NovoCadastro();
             })),
             child: Text(
-              "Cadastre-se",
-              style: GoogleFonts.roboto(
-                  color: Colors.blue[800],
+              "CADASTRE-SE",
+              style: GoogleFonts.poppins(
+                  color: Colors.orange,
                   fontWeight: FontWeight.bold,
                   fontSize: 14),
             ),
@@ -220,9 +221,9 @@ class _LoginPageState extends State<LoginPage> {
           FlatButton(
             onPressed: () {},
             child: Text(
-              "Esqueceu sua senha?",
-              style: GoogleFonts.roboto(
-                  color: Colors.blue[800],
+              "ESQUECEU SUA SENHA?",
+              style: GoogleFonts.poppins(
+                  color: Colors.teal,
                   fontWeight: FontWeight.bold,
                   fontSize: 14),
             ),
@@ -240,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
       return toastAviso("É necessário preencher os dados de acesso");
     }
 
-    setState(() => _isLoading = true );
+    setState(() => _isLoading = true);
 
     await getBearerToken(loginController.text, _passwordController.text)
         .then((value) async {
@@ -254,7 +255,8 @@ class _LoginPageState extends State<LoginPage> {
           print("@@@@@@@@@");
           print(response.data);
 
-          if (response.data['status'] == "Token de Autorização não encontrada!") {
+          if (response.data['status'] ==
+              "Token de Autorização não encontrada!") {
             toastAviso("falha ao consultar dados");
             return Navigator.of(context)
                 .push(new MaterialPageRoute(builder: (context) {
@@ -267,18 +269,25 @@ class _LoginPageState extends State<LoginPage> {
           userStore.setUser(user);
         });
 
-        await Future.delayed(Duration(seconds: 1));
+        print('passou dados login');
 
-        print('passou');
-        setState(() => _isLoading = false );
+        await getConsultaProdutos().then((value) {
+          print(">>> ${value.toString()}");
+          for (var i in value.data) {
+            var produto = Produto.fromJson(i);
+
+            produtoStore.addProdutoToList(produto);
+          }
+        });
+
+        setState(() => _isLoading = false);
 
         return Navigator.of(context)
             .push(new MaterialPageRoute(builder: (context) {
           return new HomePage();
         }));
-
       } else {
-        setState(() => _isLoading = false );
+        setState(() => _isLoading = false);
       }
     });
   }

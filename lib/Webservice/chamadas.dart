@@ -49,20 +49,23 @@ Future getBearerToken(String email, String password) async {
 }
 
 Future getMe() async {
-  log("consultando Meus Dados");
+  log("consultando Meus Dados GETME");
 
   String url = "$host/api/auth/me";
   String _token = await getSharedPreferences("access_token");
 
   print('---');
 
+  print(_token);
+
+  print('---');
+
   return await Dio()
       .post(url,
           options: Options(headers: {"Authorization": "Bearer " + _token}))
-      .then((Response response){
-        return response;
-      })
-      .catchError((onError) {
+      .then((Response response) {
+    return response;
+  }).catchError((onError) {
     // log(onError.toString());
     print('@> ERRROR: $onError');
   });
@@ -79,11 +82,9 @@ Future logout() async {
 }
 
 Future doCadastro(Map dados) async {
-  
   String url = "$host/api/auth/cadastro";
 
-  return await http
-      .post(url, body: dados).then((value) {
+  return await http.post(url, body: dados).then((value) {
     switch (value.statusCode) {
       case 200:
         return value;
@@ -99,7 +100,6 @@ Future doCadastro(Map dados) async {
         toastAviso("Não Autorizado");
         return value;
         break;
-        
 
       default:
         toastAviso("falhou");
