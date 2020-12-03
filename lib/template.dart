@@ -4,18 +4,19 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tionico/homePage.dart';
 import 'package:tionico/perfilPage.dart';
 
-class TemplatePage extends StatefulWidget {
-  TemplatePage({Key key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key key}) : super(key: key);
 
   @override
-  _TemplatePageState createState() => _TemplatePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _TemplatePageState extends State<TemplatePage> {
+class _HomePageState extends State<HomePage> {
   int currentIndex;
-  
+
   @override
   void initState() {
+    
     super.initState();
     currentIndex = 0;
   }
@@ -27,8 +28,8 @@ class _TemplatePageState extends State<TemplatePage> {
   }
 
   List<Widget> pages = [
-    HomePage(),
-    PerfilPage()
+    PerfilPage(),
+    ProdutosPage(),
   ];
 
   @override
@@ -40,19 +41,7 @@ class _TemplatePageState extends State<TemplatePage> {
         currentIndex: currentIndex,
         onTap: changePage,
         elevation: 8,
-        
         items: <BubbleBottomBarItem>[
-          BubbleBottomBarItem(
-              backgroundColor: Colors.teal,
-              icon: Icon(
-                FontAwesomeIcons.home,
-                color: Colors.black,
-              ),
-              activeIcon: Icon(
-                FontAwesomeIcons.home,
-                color: Colors.teal,
-              ),
-              title: Text("Produtos")),
           BubbleBottomBarItem(
               backgroundColor: Colors.teal,
               icon: Icon(
@@ -64,6 +53,17 @@ class _TemplatePageState extends State<TemplatePage> {
                 color: Colors.teal,
               ),
               title: Text("Perfil")),
+          BubbleBottomBarItem(
+              backgroundColor: Colors.teal,
+              icon: Icon(
+                FontAwesomeIcons.store,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                FontAwesomeIcons.store,
+                color: Colors.teal,
+              ),
+              title: Text("Produtos")),
         ],
       ),
       body: pages[currentIndex],

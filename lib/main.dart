@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tionico/Class/Usuario.dart';
+import 'package:tionico/Webservice/chamadas.dart';
 import 'package:tionico/template.dart';
+import 'package:tionico/utils.dart';
+
+import 'MOBX/STORE.dart';
+import 'pages/login_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,11 +17,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Posto Tio Nico',
-      theme: ThemeData(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginPage(),
+        '/home': (context) => HomePage()
+      },
     );
   }
 }
@@ -30,18 +38,59 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    Future.delayed(Duration(seconds: 1)).then((value) =>
-        Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (context) {
-          return new TemplatePage();
-        })));
+    checkIfUserIsLogged();
+
     super.initState();
+  }
+
+  checkIfUserIsLogged() async {
+    await getMe().then((response) async {
+      print(">>>>>>>>>>>>>>");
+      print(response.data);
+
+      if (response.data['status'] == "Token de Autorização não encontrada!") {
+        // toastAviso("Falha ao consultar dados.");
+        return Navigator.of(context)
+            .push(new MaterialPageRoute(builder: (context) {
+          return new LoginPage();
+        }));
+      }
+
+      Usuario user = Usuario.fromMap(response.data);
+      print([user.name, user.email].toString());
+      userStore.setUser(user);
+
+      await Future.delayed(Duration(seconds: 1));
+
+      print('passou');
+
+      return Navigator.of(context)
+          .push(new MaterialPageRoute(builder: (context) {
+        return new HomePage();
+      }));
+    }).catchError((onError) {
+      return Navigator.of(context)
+          .push(new MaterialPageRoute(builder: (context) {
+        return new LoginPage();
+      }));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: <Widget>[],
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Hero(
+          tag: 'hero',
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+            child: Image.asset(
+              "assets/images/logo.jpeg",
+              height: 100,
+            ),
+          ),
+        ),
       ),
     );
   }

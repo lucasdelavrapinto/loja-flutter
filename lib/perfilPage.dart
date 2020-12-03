@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tionico/Class/Usuario.dart';
+import 'package:tionico/MOBX/STORE.dart';
+import 'package:tionico/Webservice/chamadas.dart';
+import 'package:tionico/pages/login_page.dart';
+import 'package:tionico/utils.dart';
+
+import 'Webservice/shared_preferences.dart';
 
 class PerfilPage extends StatefulWidget {
   PerfilPage({Key key}) : super(key: key);
@@ -9,41 +18,57 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
+  Future _check() async {
+    await refreshMe().then((value) {
+      print(value);
+      if (!value) {
+        Navigator.of(context).push(new MaterialPageRoute(builder: (context) {
+          return new LoginPage();
+        }));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.only(top: 20),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          child: Icon(Icons.more_vert, color: Colors.teal,),
-                        ),
-                      )
-                    ],
+      body: RefreshIndicator(
+        onRefresh: _check,
+        child: Observer(
+          builder: (_) => ListView(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            // crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.end,
+              //   children: <Widget>[
+              //     GestureDetector(
+              //       onTap: () {},
+              //       child: Container(
+              //         width: 50,
+              //         height: 50,
+              //         child: Icon(
+              //           Icons.more_vert,
+              //           color: Colors.teal,
+              //         ),
+              //       ),
+              //     )
+              //   ],
+              // ),
+              Column(
+                children: [
+                  SizedBox(
+                    height: 80,
                   ),
-                  CircleAvatar(
-                    radius: 60.0,
-                    backgroundImage: NetworkImage(
-                        'https://interfacetreinamentos.com.br/wp-content/uploads/2016/04/img-profile-default.jpg'),
-                    backgroundColor: Colors.transparent,
+                  Text("${userStore.usuario.name}",
+                      style: GoogleFonts.poppins(fontSize: 18)),
+                  Text("${userStore.usuario.email}",
+                      style: GoogleFonts.poppins(fontSize: 12)),
+                  SizedBox(
+                    height: 20,
                   ),
-                  Text("Lucas De Lavra Pinto"),
                   Text(
-                    "459 pontos",
+                    "${userStore.usuario.pontos} pontos",
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,
@@ -53,32 +78,39 @@ class _PerfilPageState extends State<PerfilPage> {
                     margin: EdgeInsets.only(top: 20),
                     child: Column(
                       children: <Widget>[
-                        ListTile(
-                          leading: Icon(Icons.person, color: Colors.teal,),
-                          title: Text("Editar meus dados"),
-                        ),
-                        ListTile(
-                          leading: Icon(Icons.history, color: Colors.teal,),
-                          title: Text("Histórico de trocas"),
-                        ),
-                        ListTile(
-                          leading: Icon(Icons.help, color: Colors.teal,),
-                          title: Text("Ajuda"),
-                        ),
-                        ListTile(
-                          leading: Icon(Icons.priority_high, color: Colors.teal,),
-                          title: Text("Privacidade"),
-                        ),
-                        ListTile(
-                          leading: Icon(Icons.exit_to_app, color: Colors.teal,),
-                          title: Text("Sair"),
+                        GestureDetector(
+                          onTap: () async {
+                            await logout().then((value) {
+                              if (value.statusCode != 200) {
+                                return toastAviso("Falha ao desconectar");
+                              }
+
+                              saveSharedPreferences('access_token', "");
+
+                              // userStore.usuario = null;
+
+                              return Navigator.of(context).push(
+                                  new MaterialPageRoute(builder: (context) {
+                                return new LoginPage();
+                              })).whenComplete(() {
+                                userStore.setUser(Usuario("", "", "", '', ""));
+                              });
+                            });
+                          },
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.exit_to_app,
+                              color: Colors.teal,
+                            ),
+                            title: Text("Sair"),
+                          ),
                         ),
                       ],
                     ),
                   )
                 ],
-              ),
-            ),
+              )
+            ],
           ),
         ),
       ),
