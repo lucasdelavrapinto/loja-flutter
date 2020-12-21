@@ -1,4 +1,4 @@
-package com.example.tionico
+package br.com.autopostotionico
 
 import io.flutter.embedding.android.FlutterActivity
 
