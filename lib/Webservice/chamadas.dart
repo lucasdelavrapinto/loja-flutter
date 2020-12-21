@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:tionico/Webservice/shared_preferences.dart';
 import 'package:tionico/utils.dart';
 
-String host = "http://192.168.2.103:8080";
+import '../env.dart';
 
 Future<dynamic> getConsultaProdutos() async {
   log("consultando API");
@@ -54,7 +54,7 @@ Future getMe() async {
   String url = "$host/api/auth/me";
   String _token = await getSharedPreferences("access_token");
 
-  print('---');
+  print('--- $url');
 
   print(_token);
 

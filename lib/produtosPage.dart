@@ -7,6 +7,8 @@ import 'package:tionico/Class/Produto.dart';
 import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 
+import 'env.dart';
+
 class ProdutosPage extends StatefulWidget {
   ProdutosPage({Key key}) : super(key: key);
 

@@ -95,7 +95,6 @@ class _NovoCadastroState extends State<NovoCadastro> {
       child: TextFormField(
         // focusNode: loginNode,
         controller: _nomeController,
-        inputFormatters: <TextInputFormatter>[LowerCaseTextFormatter()],
         keyboardType: TextInputType.text,
         autocorrect: false,
         cursorColor: Colors.black,
@@ -110,7 +109,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,
-            color: Colors.green,
+            color: Colors.teal,
           ),
         ),
         validator: (value) =>
@@ -140,7 +139,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,
-            color: Colors.green,
+            color: Colors.teal,
           ),
         ),
         validator: (value) =>
@@ -170,7 +169,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,
-            color: Colors.green,
+            color: Colors.teal,
           ),
         ),
         validator: (value) =>
@@ -204,7 +203,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
               },
               child: new Icon(
                 showPassword ? Icons.lock_open : Icons.lock,
-                color: Colors.blue,
+                color: Colors.teal,
               ),
             )),
         validator: (value) => value.isEmpty ? 'Infome sua senha' : null,
@@ -231,7 +230,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
           Container(
             width: 150,
             decoration: BoxDecoration(
-              color: Colors.amber,
+              color: Colors.orange,
               borderRadius: BorderRadius.all(Radius.circular(15.0)),
             ),
             child: FlatButton(
@@ -283,7 +282,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
 
             var res = json.decode(val.body);
 
-            saveSharedPreferences('access_token', res['access_token']);
+            await saveSharedPreferences('access_token', res['access_token']);
 
             await Future.delayed(Duration(milliseconds: 500));
 

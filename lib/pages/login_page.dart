@@ -26,9 +26,9 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = new GlobalKey<FormState>();
 
   TextEditingController loginController =
-      TextEditingController(text: "lucasdelavrapinto@gmail.com");
+      TextEditingController(text: "");
   TextEditingController _passwordController =
-      TextEditingController(text: "Reload04");
+      TextEditingController(text: "");
 
   FocusNode loginNode = FocusNode();
   FocusNode passNode = FocusNode();
@@ -101,9 +101,9 @@ class _LoginPageState extends State<LoginPage> {
         decoration: InputDecoration(
           focusedBorder:
               UnderlineInputBorder(borderSide: BorderSide(color: Colors.teal)),
-          hintText: 'usuário',
+          hintText: 'email',
           hintStyle: TextStyle(color: Colors.black38),
-          helperText: 'ex: joao.silva',
+          helperText: 'ex: fulano@gmail.com',
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,
@@ -251,9 +251,11 @@ class _LoginPageState extends State<LoginPage> {
         var res = json.decode(value.body);
         await saveSharedPreferences('access_token', res['access_token']);
 
-        await getMe().then((response) {
+        await getMe().then((response) async {
           print("@@@@@@@@@");
           print(response.data);
+
+          await Future.delayed(Duration(seconds: 2));
 
           if (response.data['status'] ==
               "Token de Autorização não encontrada!") {
@@ -271,6 +273,7 @@ class _LoginPageState extends State<LoginPage> {
 
         print('passou dados login');
 
+        produtoStore.listaDeProdutos = [];
         await getConsultaProdutos().then((value) {
           print(">>> ${value.toString()}");
           for (var i in value.data) {

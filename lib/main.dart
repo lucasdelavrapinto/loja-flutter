@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:tionico/Class/Usuario.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 import 'package:tionico/template.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:tionico/utils.dart';
 
 import 'MOBX/STORE.dart';
