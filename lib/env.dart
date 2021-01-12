@@ -1,1 +1,5 @@
-final String host = "http://45.93.100.239"; //ip do servidor
+bool dev = false;
+
+final String host = (dev)
+    ? "http://192.168.2.103:8000" //ip local
+    : "http://45.93.100.239"; //ip do servidor

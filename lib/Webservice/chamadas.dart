@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:tionico/MOBX/STORE.dart';
 
 import 'package:tionico/Webservice/shared_preferences.dart';
 import 'package:tionico/utils.dart';
@@ -28,6 +29,7 @@ Future<dynamic> getConsultaProdutos() async {
 
 Future getBearerToken(String email, String password) async {
   String url = "$host/api/auth/login";
+  print("getBearerToken from url: $url");
 
   return await http
       .post(url, body: {"email": email, "password": password}).then((value) {
@@ -38,6 +40,11 @@ Future getBearerToken(String email, String password) async {
 
       case 401:
         toastAviso("Não Autorizado");
+        return value;
+        break;
+      
+      case 404:
+        toastAviso("Usuário não encontrado!");
         return value;
         break;
 
@@ -105,5 +112,31 @@ Future doCadastro(Map dados) async {
         toastAviso("falhou");
         return value;
     }
+  });
+}
+
+Future atualizarSenha(String novaSenha) async {
+  String url = "$host/api/auth/atualizar-senha";
+
+  String _token = await getSharedPreferences("access_token");
+
+  print('--- $url');
+
+  Map dados = {
+    "user_cpf" : userStore.usuario.cpf,
+    "user_email": userStore.usuario.email,
+    "novaSenha": "$novaSenha",
+  };
+
+  return await Dio()
+      .post(url,
+          data: dados,
+          options: Options(headers: {"Authorization": "Bearer " + _token}))
+      .then((Response response) {
+        log(response.data.toString());
+    return response;
+  }).catchError((onError) {
+    // log(onError.toString());
+    print('@> ERRROR: $onError');
   });
 }

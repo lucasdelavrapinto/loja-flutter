@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tionico/Class/Usuario.dart';
 import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
+import 'package:tionico/pages/alterar_senha.dart';
 import 'package:tionico/pages/login_page.dart';
 import 'package:tionico/utils.dart';
 
@@ -37,29 +38,11 @@ class _PerfilPageState extends State<PerfilPage> {
         onRefresh: _check,
         child: Observer(
           builder: (_) => ListView(
-            // mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.end,
-              //   children: <Widget>[
-              //     GestureDetector(
-              //       onTap: () {},
-              //       child: Container(
-              //         width: 50,
-              //         height: 50,
-              //         child: Icon(
-              //           Icons.more_vert,
-              //           color: Colors.teal,
-              //         ),
-              //       ),
-              //     )
-              //   ],
-              // ),
               Column(
                 children: [
                   SizedBox(
-                    height: 80,
+                    height: 40,
                   ),
                   Image.asset(
                     "assets/person.png",
@@ -67,8 +50,7 @@ class _PerfilPageState extends State<PerfilPage> {
                   ),
                   Text("${userStore.usuario.name}",
                       style: GoogleFonts.poppins(fontSize: 18)),
-                  Text("${userStore.usuario.email}",
-                      style: GoogleFonts.poppins(fontSize: 12)),
+                  Text("${userStore.usuario.email}", style: fonteTexto),
                   SizedBox(
                     height: 20,
                   ),
@@ -83,6 +65,20 @@ class _PerfilPageState extends State<PerfilPage> {
                     margin: EdgeInsets.only(top: 20),
                     child: Column(
                       children: <Widget>[
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .push(new MaterialPageRoute(builder: (context) {
+                            return new AlterarSenhaPage();
+                          })),
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.lock,
+                              color: Colors.teal,
+                            ),
+                            title: Text("Alterar Senha de acesso",
+                                style: fonteTexto),
+                          ),
+                        ),
                         GestureDetector(
                           onTap: () async {
                             await logout().then((value) {
@@ -109,7 +105,7 @@ class _PerfilPageState extends State<PerfilPage> {
                               Icons.exit_to_app,
                               color: Colors.teal,
                             ),
-                            title: Text("Sair"),
+                            title: Text("Sair", style: fonteTexto),
                           ),
                         ),
                       ],

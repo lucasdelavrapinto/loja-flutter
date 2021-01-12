@@ -90,7 +90,8 @@ class _ProdutosPageState extends State<ProdutosPage> {
                         margin: EdgeInsets.only(top: 60),
                         width: MediaQuery.of(context).size.width - 80,
                         child: Text(
-                          "Para resgatar seus pontos, vá até o Posto Tio Nico",
+                          "Para resgatar seus pontos, vá até o Posto Tio Nico ou entre em contato conosco.",
+                          textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                               fontSize: 12, color: Colors.black38),
                         )),

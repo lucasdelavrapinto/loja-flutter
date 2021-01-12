@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tionico/Class/Produto.dart';
+import 'package:tionico/Class/Usuario.dart';
+import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 import 'package:tionico/Webservice/shared_preferences.dart';
 import 'package:tionico/pages/login_page.dart';
@@ -277,28 +280,54 @@ class _NovoCadastroState extends State<NovoCadastro> {
         getBearerToken(_emailController.text, _passwordController.text)
             .then((val) async {
           if (val.statusCode == 200) {
-
             print([val.statusCode, val.body]);
 
             var res = json.decode(val.body);
-
             await saveSharedPreferences('access_token', res['access_token']);
 
-            await Future.delayed(Duration(milliseconds: 500));
+            await getMe().then((response) async {
+              print("@@@@@@@@@");
+              print(response.data);
+
+              await Future.delayed(Duration(seconds: 2));
+
+              if (response.data['status'] ==
+                  "Token de Autorização não encontrada!") {
+                toastAviso("falha ao consultar dados");
+                return Navigator.of(context)
+                    .push(new MaterialPageRoute(builder: (context) {
+                  return new LoginPage();
+                }));
+              }
+
+              Usuario user = Usuario.fromMap(response.data);
+              print([user.name, user.email].toString());
+              userStore.setUser(user);
+            });
+
+            print('passou dados login');
+
+            produtoStore.listaDeProdutos = [];
+            await getConsultaProdutos().then((value) {
+              print(">>> ${value.toString()}");
+              for (var i in value.data) {
+                var produto = Produto.fromJson(i);
+                produtoStore.addProdutoToList(produto);
+              }
+            });
 
             setState(() => _isLoading = false);
 
             return Navigator.of(context)
                 .push(new MaterialPageRoute(builder: (context) {
               return new HomePage();
-            }));
+            }));            
           }
         });
-
       } else {
         setState(() => _isLoading = false);
       }
-    }).catchError((onError){
+    }).catchError((onError) {
       setState(() => _isLoading = false);
       toastAviso(onError.toString());
     });

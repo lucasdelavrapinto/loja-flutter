@@ -52,7 +52,6 @@ class _SplashScreenState extends State<SplashScreen> {
         case "Token de Autorização não encontrada!":
         case "Token expirado":
         case "Token é inválido":
-          
           toastAviso("falha ao obter o token");
 
           return Navigator.of(context)
@@ -68,14 +67,26 @@ class _SplashScreenState extends State<SplashScreen> {
       print([user.name, user.email].toString());
       userStore.setUser(user);
 
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 2));
 
       print('passou');
 
-      return Navigator.of(context)
-          .push(new MaterialPageRoute(builder: (context) {
-        return new HomePage();
-      }));
+      if (userStore.usuario.name.isNotEmpty &&
+          userStore.usuario.email.isNotEmpty) {
+        return Navigator.of(context)
+            .push(new MaterialPageRoute(builder: (context) {
+          return new HomePage();
+        }));
+      } else {
+        Usuario user = Usuario.fromMap(response.data);
+        print([user.name, user.email].toString());
+        userStore.setUser(user);
+
+        return Navigator.of(context)
+            .push(new MaterialPageRoute(builder: (context) {
+          return new HomePage();
+        }));
+      }
     }).catchError((onError) {
       return Navigator.of(context)
           .push(new MaterialPageRoute(builder: (context) {

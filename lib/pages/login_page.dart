@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _showCadastrese(),
-                        _showEsqueceuSenha(),
+                        // _showEsqueceuSenha(),
                       ],
                     ),
                     _acessarButton(),
