@@ -42,23 +42,24 @@ class _ProdutosPageState extends State<ProdutosPage> {
           key: Key("aaaaa"),
           onRefresh: getInfo,
           child: Container(
-            margin: EdgeInsets.only(top: 30),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Produtos",
-                    style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        color: Colors.teal,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  ListView.builder(
+            margin: EdgeInsets.only(left: 10, right: 10, top: 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Produtos",
+                  style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      color: Colors.teal,
+                      fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    physics: AlwaysScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: produtoStore.listaDeProdutos.length,
                     itemBuilder: (ctx, idx) {
+                      produtoStore.listaDeProdutos.sort((a, b) => a.pontos.compareTo(b.pontos));
                       var produto = produtoStore.listaDeProdutos[idx];
 
                       Widget getImage() {
@@ -71,33 +72,64 @@ class _ProdutosPageState extends State<ProdutosPage> {
                         }
                       }
 
-                      return Container(
-                        height: 70,
-                        child: ListTile(
-                          leading: getImage(),
-                          title: Text(
-                            "Pontos necessários: ${produto.pontos}",
-                            style: GoogleFonts.poppins(
-                                fontSize: 14, fontWeight: FontWeight.bold),
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: ListTile(
+                            leading: getImage(),
+                            title: Text(
+                              "${produto.descricao.toUpperCase()}",
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Pontos necessários: ${produto.pontos}",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                int.parse(userStore.usuario.pontos) >=
+                                        produto.pontos
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            "Disponível para troca",
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                      )
+                                    : Container()
+                              ],
+                            ),
                           ),
-                          subtitle: Text("${produto.descricao.toUpperCase()}"),
                         ),
                       );
                     },
                   ),
-                  Center(
-                    child: Container(
-                        margin: EdgeInsets.only(top: 60),
-                        width: MediaQuery.of(context).size.width - 80,
-                        child: Text(
-                          "Para resgatar seus pontos, vá até o Posto Tio Nico ou entre em contato conosco.",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                              fontSize: 12, color: Colors.black38),
-                        )),
-                  )
-                ],
-              ),
+                ),
+                Center(
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10),
+                      width: MediaQuery.of(context).size.width - 80,
+                      child: Text(
+                        "Para resgatar seus pontos, vá até o Posto Tio Nico ou entre em contato conosco.",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                            fontSize: 12, color: Colors.black38),
+                      )),
+                )
+              ],
             ),
           ),
         ),

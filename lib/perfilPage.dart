@@ -51,6 +51,8 @@ class _PerfilPageState extends State<PerfilPage> {
                   Text("${userStore.usuario.name}",
                       style: GoogleFonts.poppins(fontSize: 18)),
                   Text("${userStore.usuario.email}", style: fonteTexto),
+                  Text("${userStore.usuario.cpf}",
+                      style: GoogleFonts.poppins(fontSize: 26)),
                   SizedBox(
                     height: 20,
                   ),
@@ -76,6 +78,33 @@ class _PerfilPageState extends State<PerfilPage> {
                               color: Colors.teal,
                             ),
                             title: Text("Alterar Senha de acesso",
+                                style: fonteTexto),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Como faço para trocar meus pontos? "),
+                                  content: Text("Basta ir até o Autoposto Tio Nico e apresentar a tela do perfil.\nAqui temos tudo que precisamos."),
+                                  actions: [
+                                    FlatButton(
+                                      child: Text("OK"),
+                                      onPressed: () => Navigator.of(context).pop(),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.help_outline,
+                              color: Colors.teal,
+                            ),
+                            title: Text("Como trocar os pontos",
                                 style: fonteTexto),
                           ),
                         ),
