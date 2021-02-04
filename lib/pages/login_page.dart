@@ -10,8 +10,9 @@ import 'package:tionico/Class/Usuario.dart';
 import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 import 'package:tionico/Webservice/shared_preferences.dart';
-import 'package:tionico/pages/cadastro.dart';
+import 'package:tionico/pages/novo_cadastro.dart';
 import 'package:tionico/utils.dart';
+import 'package:tionico/pages/recuperar_senha.dart';
 
 import '../template.dart';
 
@@ -25,10 +26,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = new GlobalKey<FormState>();
 
-  TextEditingController loginController =
-      TextEditingController(text: "");
-  TextEditingController _passwordController =
-      TextEditingController(text: "");
+  TextEditingController loginController = TextEditingController(text: "");
+  TextEditingController _passwordController = TextEditingController(text: "");
 
   FocusNode loginNode = FocusNode();
   FocusNode passNode = FocusNode();
@@ -59,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _showCadastrese(),
-                        // _showEsqueceuSenha(),
+                        _showRecuperarSenha(),
                       ],
                     ),
                     _acessarButton(),
@@ -129,8 +128,8 @@ class _LoginPageState extends State<LoginPage> {
         style: GoogleFonts.poppins(),
         controller: _passwordController,
         decoration: new InputDecoration(
-            focusedBorder:
-                UnderlineInputBorder(borderSide: BorderSide(color: Colors.teal)),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.teal)),
             hintText: 'senha',
             hintStyle: TextStyle(color: Colors.black38),
             helperText: "OBS: Toque no cadeado para conferir a senha",
@@ -212,14 +211,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _showEsqueceuSenha() {
+  _showRecuperarSenha() {
     return Container(
       margin: EdgeInsets.only(top: 20, bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           FlatButton(
-            onPressed: () {},
+            onPressed: () => Navigator.of(context)
+                .push(new MaterialPageRoute(builder: (context) {
+              return new RecuperarSenha();
+            })),
             child: Text(
               "ESQUECEU SUA SENHA?",
               style: GoogleFonts.poppins(
@@ -245,54 +247,58 @@ class _LoginPageState extends State<LoginPage> {
 
     await getBearerToken(loginController.text, _passwordController.text)
         .then((value) async {
-      log(value.body.toString());
+          log(value.body.toString());
 
-      if (value.statusCode == 200) {
-        var res = json.decode(value.body);
-        await saveSharedPreferences('access_token', res['access_token']);
+          if (value.statusCode == 200) {
+            var res = json.decode(value.body);
+            await saveSharedPreferences('access_token', res['access_token']);
 
-        await getMe().then((response) async {
-          print("@@@@@@@@@");
-          print(response.data);
+            await getMe().then((response) async {
+              print("@@@@@@@@@");
+              print(response.data);
 
-          await Future.delayed(Duration(seconds: 2));
+              await Future.delayed(Duration(seconds: 2));
 
-          if (response.data['status'] ==
-              "Token de Autorização não encontrada!") {
-            toastAviso("falha ao consultar dados");
+              if (response.data['status'] ==
+                  "Token de Autorização não encontrada!") {
+                toastAviso("falha ao consultar dados");
+                return Navigator.of(context)
+                    .push(new MaterialPageRoute(builder: (context) {
+                  return new LoginPage();
+                }));
+              }
+
+              Usuario user = Usuario.fromMap(response.data);
+              print([user.name, user.email].toString());
+              userStore.setUser(user);
+            });
+
+            print('passou dados login');
+
+            produtoStore.listaDeProdutos = [];
+            await getConsultaProdutos().then((value) {
+              print(">>> ${value.toString()}");
+              for (var i in value.data) {
+                var produto = Produto.fromJson(i);
+
+                produtoStore.addProdutoToList(produto);
+              }
+            });
+
+            setState(() => _isLoading = false);
+
             return Navigator.of(context)
                 .push(new MaterialPageRoute(builder: (context) {
-              return new LoginPage();
+              return new HomePage();
             }));
+          } else {
+            setState(() => _isLoading = false);
           }
-
-          Usuario user = Usuario.fromMap(response.data);
-          print([user.name, user.email].toString());
-          userStore.setUser(user);
+        })
+        .timeout(Duration(seconds: 30))
+        .then((e) {
+          setState(() => _isLoading = false);
         });
-
-        print('passou dados login');
-
-        produtoStore.listaDeProdutos = [];
-        await getConsultaProdutos().then((value) {
-          print(">>> ${value.toString()}");
-          for (var i in value.data) {
-            var produto = Produto.fromJson(i);
-
-            produtoStore.addProdutoToList(produto);
-          }
-        });
-
-        setState(() => _isLoading = false);
-
-        return Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) {
-          return new HomePage();
-        }));
-      } else {
-        setState(() => _isLoading = false);
-      }
-    });
   }
 }
 

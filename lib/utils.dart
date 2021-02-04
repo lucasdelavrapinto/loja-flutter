@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 
 import 'Class/Usuario.dart';
@@ -9,6 +10,10 @@ import 'MOBX/STORE.dart';
 
 final TextStyle fonteTexto = GoogleFonts.poppins(fontSize: 14);
 final TextStyle fonteObs = GoogleFonts.roboto(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold);
+
+final MaskTextInputFormatter maskDateFormatter = MaskTextInputFormatter(mask: '##/##/####');
+final MaskTextInputFormatter maskCpfFormatter = MaskTextInputFormatter(mask: '###.###.###-##');
+final MaskTextInputFormatter maskTelefoneFormatter = MaskTextInputFormatter(mask: '(##) #####-####');
 
 toastAviso(String texto,
     {ToastGravity position = ToastGravity.BOTTOM,

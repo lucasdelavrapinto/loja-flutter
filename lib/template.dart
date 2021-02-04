@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tionico/produtosPage.dart';
+import 'package:tionico/produtos.dart';
 import 'package:tionico/perfilPage.dart';
 
 class HomePage extends StatefulWidget {

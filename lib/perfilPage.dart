@@ -8,6 +8,7 @@ import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
 import 'package:tionico/pages/alterar_senha.dart';
 import 'package:tionico/pages/login_page.dart';
+import 'package:tionico/pages/meu_cadastro.dart';
 import 'package:tionico/utils.dart';
 
 import 'Webservice/shared_preferences.dart';
@@ -57,7 +58,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     height: 20,
                   ),
                   Text(
-                    "${userStore.usuario.pontos} pontos",
+                    "${double.parse(userStore.usuario.pontos).toStringAsFixed(2)} pontos",
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,
@@ -78,6 +79,20 @@ class _PerfilPageState extends State<PerfilPage> {
                               color: Colors.teal,
                             ),
                             title: Text("Alterar Senha de acesso",
+                                style: fonteTexto),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .push(new MaterialPageRoute(builder: (context) {
+                            return new MeuCadastro();
+                          })),
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.person,
+                              color: Colors.teal,
+                            ),
+                            title: Text("Alterar meus dados cadastrais",
                                 style: fonteTexto),
                           ),
                         ),
@@ -125,7 +140,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                   new MaterialPageRoute(builder: (context) {
                                 return new LoginPage();
                               })).whenComplete(() {
-                                userStore.setUser(Usuario("", "", "", '', ""));
+                                userStore.setUser(Usuario("", "", "", '', "", ""));
                               });
                             });
                           },

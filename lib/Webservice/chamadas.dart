@@ -24,6 +24,7 @@ Future<dynamic> getConsultaProdutos() async {
       .then((Response response) => response)
       .catchError((onError) {
     log(onError.toString());
+    return onError;
   });
 }
 
@@ -42,7 +43,7 @@ Future getBearerToken(String email, String password) async {
         toastAviso("Não Autorizado");
         return value;
         break;
-      
+
       case 404:
         toastAviso("Usuário não encontrado!");
         return value;
@@ -91,6 +92,8 @@ Future logout() async {
 Future doCadastro(Map dados) async {
   String url = "$host/api/auth/cadastro";
 
+  log("@" + json.encode(dados).toString());
+
   return await http.post(url, body: dados).then((value) {
     switch (value.statusCode) {
       case 200:
@@ -123,7 +126,7 @@ Future atualizarSenha(String novaSenha) async {
   print('--- $url');
 
   Map dados = {
-    "user_cpf" : userStore.usuario.cpf,
+    "user_cpf": userStore.usuario.cpf,
     "user_email": userStore.usuario.email,
     "novaSenha": "$novaSenha",
   };
@@ -133,10 +136,66 @@ Future atualizarSenha(String novaSenha) async {
           data: dados,
           options: Options(headers: {"Authorization": "Bearer " + _token}))
       .then((Response response) {
-        log(response.data.toString());
+    log(response.data.toString());
     return response;
   }).catchError((onError) {
     // log(onError.toString());
     print('@> ERRROR: $onError');
+  });
+}
+
+Future updateCadastro(dados) async {
+  String url = "$host/api/auth/atualizar-cadastro";
+
+  String _token = await getSharedPreferences("access_token");
+
+  print('--- $url');
+
+  log(dados.toString());
+
+  return await Dio()
+      .post(url,
+          data: dados,
+          options: Options(headers: {"Authorization": "Bearer " + _token}))
+      .then((Response response) {
+    return response.data;
+  }).catchError((onError) {
+    // log(onError.toString());
+    print('@> ERRROR: $onError');
+  });
+}
+
+Future recuperarSenha(Map dados) async {
+  //dados = {email:email}
+
+  log(dados.toString());
+  String url = "$host/api/auth/recuperar-senha";
+
+  return await http.post(url, body: dados).then((value) {
+    switch (value.statusCode) {
+      case 200:
+        return value;
+        break;
+
+      case 400:
+        var res = json.decode(value.body);
+        toastAviso(res['error']);
+        return value;
+        break;
+
+      case 401:
+        toastAviso("Não Autorizado");
+        return value;
+        break;
+
+      case 404:
+        toastAviso("Falha ao obter os dados");
+        return value;
+        break;
+
+      default:
+        toastAviso("falhou");
+        return value;
+    }
   });
 }

@@ -1,39 +1,58 @@
-import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tionico/Class/Produto.dart';
 import 'package:tionico/Class/Usuario.dart';
 import 'package:tionico/MOBX/STORE.dart';
 import 'package:tionico/Webservice/chamadas.dart';
-import 'package:tionico/Webservice/shared_preferences.dart';
 import 'package:tionico/pages/login_page.dart';
-import 'package:tionico/template.dart';
+import 'package:tionico/utils.dart';
 
-import '../utils.dart';
-
-class NovoCadastro extends StatefulWidget {
-  NovoCadastro({Key key}) : super(key: key);
+class MeuCadastro extends StatefulWidget {
+  MeuCadastro({Key key}) : super(key: key);
 
   @override
-  _NovoCadastroState createState() => _NovoCadastroState();
+  _MeuCadastroState createState() => _MeuCadastroState();
 }
 
-class _NovoCadastroState extends State<NovoCadastro> {
-  final _formKey = new GlobalKey<FormState>();
+class _MeuCadastroState extends State<MeuCadastro> {
+  final _formKeyCadastro = new GlobalKey<FormState>();
 
-  TextEditingController _nomeController = TextEditingController(text: "");
-  TextEditingController _emailController = TextEditingController(text: "");
-  TextEditingController _cpfController = TextEditingController(text: "");
-  TextEditingController _passwordController = TextEditingController(text: "");
+  TextEditingController _nomeController =
+      TextEditingController(text: userStore.usuario.name);
+  TextEditingController _emailController =
+      TextEditingController(text: userStore.usuario.email);
+  TextEditingController _cpfController =
+      TextEditingController(text: userStore.usuario.cpf);
+  TextEditingController _telefoneController;
+  TextEditingController _nascimentoController;
 
   FocusNode loginNode = FocusNode();
-  FocusNode passNode = FocusNode();
 
-  bool showPassword = false;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    log(userStore.usuario.telefone);
+    super.initState();
+    if (userStore.usuario.telefone.isEmpty ||
+        userStore.usuario.telefone == "null") {
+      _telefoneController = TextEditingController(text: "");
+    } else {
+      _telefoneController =
+          TextEditingController(text: userStore.usuario.telefone);
+    }
+
+    if (userStore.usuario.nascimento.isEmpty ||
+        userStore.usuario.nascimento == "null") {
+      _nascimentoController = TextEditingController(text: "");
+    } else {
+      _nascimentoController =
+          TextEditingController(text: userStore.usuario.nascimento);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +65,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
             Container(
               padding: EdgeInsets.all(16.0),
               child: new Form(
-                key: _formKey,
+                key: _formKeyCadastro,
                 child: ListView(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
@@ -67,7 +86,8 @@ class _NovoCadastroState extends State<NovoCadastro> {
                     _showNome(),
                     _showUsuarioInput(),
                     _showCpfInput(),
-                    _showPasswordInput(),
+                    _showTelefoneInput(),
+                    _showNascimentoInput(),
                     _acessarButton(),
                   ],
                 ),
@@ -127,18 +147,19 @@ class _NovoCadastroState extends State<NovoCadastro> {
       child: TextFormField(
         focusNode: loginNode,
         controller: _emailController,
+        readOnly: true,
         inputFormatters: <TextInputFormatter>[LowerCaseTextFormatter()],
         keyboardType: TextInputType.text,
         autocorrect: false,
         cursorColor: Colors.black,
         cursorWidth: 1,
-        style: GoogleFonts.poppins(),
+        style: GoogleFonts.poppins(color: Colors.grey[400]),
         decoration: InputDecoration(
           focusedBorder:
               UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
           hintText: 'email',
           hintStyle: TextStyle(color: Colors.black38),
-          helperText: 'ex: fulano@gmail.com',
+          helperText: 'Alteração de email bloqueada',
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,
@@ -157,7 +178,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
       child: TextFormField(
         // focusNode: loginNode,
         controller: _cpfController,
-        inputFormatters: <TextInputFormatter>[LowerCaseTextFormatter()],
+        inputFormatters: <TextInputFormatter>[maskCpfFormatter],
         keyboardType: TextInputType.number,
         autocorrect: false,
         cursorColor: Colors.black,
@@ -181,35 +202,56 @@ class _NovoCadastroState extends State<NovoCadastro> {
     );
   }
 
-  Widget _showPasswordInput() {
+  Widget _showTelefoneInput() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
-      child: new TextFormField(
-        focusNode: passNode,
-        maxLines: 1,
-        obscureText: !showPassword,
-        autofocus: false,
+      padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
+      child: TextFormField(
+        controller: _telefoneController,
+        inputFormatters: <TextInputFormatter>[maskTelefoneFormatter],
+        keyboardType: TextInputType.number,
+        autocorrect: false,
         cursorColor: Colors.black,
         cursorWidth: 1,
         style: GoogleFonts.poppins(),
-        controller: _passwordController,
-        decoration: new InputDecoration(
-            focusedBorder:
-                UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-            hintText: 'senha',
-            hintStyle: TextStyle(color: Colors.black38),
-            helperText: "OBS: Toque no cadeado para conferir a senha",
-            helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
-            icon: GestureDetector(
-              onTap: () {
-                setState(() => showPassword = !showPassword);
-              },
-              child: new Icon(
-                showPassword ? Icons.lock_open : Icons.lock,
-                color: Colors.teal,
-              ),
-            )),
-        validator: (value) => value.isEmpty ? 'Infome sua senha' : null,
+        decoration: InputDecoration(
+          focusedBorder:
+              UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+          hintText: 'telefone',
+          hintStyle: TextStyle(color: Colors.black38),
+          helperText: 'ex: (49) 1234 4567',
+          helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
+          icon: new Icon(
+            Icons.person,
+            color: Colors.teal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _showNascimentoInput() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
+      child: TextFormField(
+        controller: _nascimentoController,
+        inputFormatters: <TextInputFormatter>[maskDateFormatter],
+        keyboardType: TextInputType.number,
+        autocorrect: false,
+        cursorColor: Colors.black,
+        cursorWidth: 1,
+        style: GoogleFonts.poppins(),
+        decoration: InputDecoration(
+          focusedBorder:
+              UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+          hintText: 'Data de Nascimento',
+          hintStyle: TextStyle(color: Colors.black38),
+          helperText: 'ex: 04/09/1991',
+          helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
+          icon: new Icon(
+            Icons.person,
+            color: Colors.teal,
+          ),
+        ),
       ),
     );
   }
@@ -219,7 +261,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
       return Padding(
         padding: EdgeInsets.only(top: 45),
         child: SpinKitThreeBounce(
-          color: Colors.yellow,
+          color: Colors.teal,
           size: 30,
         ),
       );
@@ -238,10 +280,10 @@ class _NovoCadastroState extends State<NovoCadastro> {
             ),
             child: FlatButton(
               child: Text(
-                'Cadastrar',
+                'Atualizar meus dados',
                 style: GoogleFonts.roboto(
                     letterSpacing: -1,
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: Colors.white),
               ),
@@ -254,82 +296,39 @@ class _NovoCadastroState extends State<NovoCadastro> {
   }
 
   _cadastrar() async {
-    loginNode.unfocus();
-    passNode.unfocus();
 
-    if (_nomeController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _cpfController.text.isEmpty) {
-      return toastAviso("É necessário preencher todos os dados.");
-    }
+    setState(() => _isLoading = true );
 
     Map dados = {
       "nome": _nomeController.text,
-      "email": _emailController.text,
       "cpf": _cpfController.text,
-      "password": _passwordController.text
+      "telefone": _telefoneController.text,
+      "nascimento": _nascimentoController.text.replaceAll("/", '-')
     };
 
-    doCadastro(dados).then((value) {
-      setState(() => _isLoading = true);
+    print("+++");
+    print(dados);
 
-      print(value.body);
+    updateCadastro(dados).then((e) async {
+      print("___");
+      print(e);
 
-      if (value.statusCode == 200) {
-        getBearerToken(_emailController.text, _passwordController.text)
-            .then((val) async {
-          if (val.statusCode == 200) {
-            print([val.statusCode, val.body]);
+      setState(() => _isLoading = false );
 
-            var res = json.decode(val.body);
-            await saveSharedPreferences('access_token', res['access_token']);
-
-            await getMe().then((response) async {
-              print("@@@@@@@@@");
-              print(response.data);
-
-              await Future.delayed(Duration(seconds: 2));
-
-              if (response.data['status'] ==
-                  "Token de Autorização não encontrada!") {
-                toastAviso("falha ao consultar dados");
-                return Navigator.of(context)
-                    .push(new MaterialPageRoute(builder: (context) {
-                  return new LoginPage();
-                }));
-              }
-
-              Usuario user = Usuario.fromMap(response.data);
-              print([user.name, user.email].toString());
-              userStore.setUser(user);
-            });
-
-            print('passou dados login');
-
-            produtoStore.listaDeProdutos = [];
-            await getConsultaProdutos().then((value) {
-              print(">>> ${value.toString()}");
-              for (var i in value.data) {
-                var produto = Produto.fromJson(i);
-                produtoStore.addProdutoToList(produto);
-              }
-            });
-
-            setState(() => _isLoading = false);
-
-            return Navigator.of(context)
-                .push(new MaterialPageRoute(builder: (context) {
-              return new HomePage();
-            }));            
-          }
+      if (e['message'] == "success") {
+        toastAviso("Dados atualizados com sucesso!", textoSize: 12);
+        await getMe().then((response) async {
+          Usuario user = Usuario.fromMap(response.data);
+          userStore.setUser(user);
         });
+        
+        await Future.delayed(Duration(milliseconds: 500))
+            .then((x) => Navigator.of(context).pop());
       } else {
-        setState(() => _isLoading = false);
+        toastAviso("Falha ao atualizar os dados, tente novamente mais tarde!", textoSize: 12);
       }
-    }).catchError((onError) {
-      setState(() => _isLoading = false);
-      toastAviso(onError.toString());
+    }).catchError((error){
+        toastAviso("Verifique seus dados e tente novamente!", textoSize: 12);
     });
   }
 }
