@@ -181,15 +181,16 @@ class _MeuCadastroState extends State<MeuCadastro> {
         inputFormatters: <TextInputFormatter>[maskCpfFormatter],
         keyboardType: TextInputType.number,
         autocorrect: false,
+        readOnly: true,
         cursorColor: Colors.black,
         cursorWidth: 1,
-        style: GoogleFonts.poppins(),
+        style: GoogleFonts.poppins(color: Colors.grey[400]),
         decoration: InputDecoration(
           focusedBorder:
               UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
           hintText: 'cpf',
           hintStyle: TextStyle(color: Colors.black38),
-          helperText: 'ex: 000.000.000-00',
+          helperText: 'Alteração de CPF bloqueado',
           helperStyle: TextStyle(color: Colors.black26, fontSize: 10),
           icon: new Icon(
             Icons.person,

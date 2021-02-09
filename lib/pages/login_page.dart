@@ -288,7 +288,7 @@ class _LoginPageState extends State<LoginPage> {
             setState(() => _isLoading = false);
 
             return Navigator.of(context)
-                .push(new MaterialPageRoute(builder: (context) {
+                .pushReplacement(new MaterialPageRoute(builder: (context) {
               return new HomePage();
             }));
           } else {

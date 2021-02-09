@@ -280,7 +280,7 @@ class _NovoCadastroState extends State<NovoCadastro> {
       return Padding(
         padding: EdgeInsets.only(top: 45),
         child: SpinKitThreeBounce(
-          color: Colors.yellow,
+          color: Colors.teal,
           size: 30,
         ),
       );
