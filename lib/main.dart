@@ -39,7 +39,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     checkIfUserIsLogged();
-
     super.initState();
   }
 
@@ -74,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (userStore.usuario.name.isNotEmpty &&
           userStore.usuario.email.isNotEmpty) {
         return Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) {
+            .pushReplacement(new MaterialPageRoute(builder: (context) {
           return new HomePage();
         }));
       } else {
@@ -83,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
         userStore.setUser(user);
 
         return Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) {
+            .pushReplacement(new MaterialPageRoute(builder: (context) {
           return new HomePage();
         }));
       }

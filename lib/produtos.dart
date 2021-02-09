@@ -22,8 +22,41 @@ class ProdutosPage extends StatefulWidget {
 
 class _ProdutosPageState extends State<ProdutosPage> {
   Future getInfo() async {
-    print('consultando produtos');
+    // produtoStore.listaDeProdutos.clear();
+
+    log("1");
+
+    if (produtoStore.listaDeProdutos.isEmpty) {
+      log("2");
+      await getConsultaProdutos().then((value) {
+        if (value.data.asMap().containsKey('status')) {
+          if (value.data["status"] == "Token expirado") {
+            toastAviso("Tivemos um problema ao encontrar seus dados",
+                textoSize: 12);
+
+            Navigator.of(context)
+                .pushReplacement(new MaterialPageRoute(builder: (context) {
+              return new LoginPage();
+            }));
+          }
+        }
+
+        for (var i in value.data) {
+          var produto = Produto.fromJson(i);
+          produtoStore.addProdutoToList(produto);
+        }
+      });
+    } else {
+      log("3");
+    }
+
+    setState(() {});
+  }
+
+  Future getInfoForce() async {
     produtoStore.listaDeProdutos.clear();
+
+    setState(() {});
 
     await getConsultaProdutos().then((value) {
       if (value.data.asMap().containsKey('status')) {
@@ -38,20 +71,18 @@ class _ProdutosPageState extends State<ProdutosPage> {
         }
       }
 
-      print(">>> ${value.toString()}");
       for (var i in value.data) {
         var produto = Produto.fromJson(i);
-        log(produto.descricao);
         produtoStore.addProdutoToList(produto);
       }
+
+      log('fim');
     });
 
-    print('fim');
     setState(() {});
   }
 
   getImage(url) async {
-    log(url);
     return await http.get(url).then((http.Response e) {
       if (e.statusCode == 200) {
         return Container(width: 100, child: Image.network(url));
@@ -62,12 +93,18 @@ class _ProdutosPageState extends State<ProdutosPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getInfo();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) => Scaffold(
+    return Observer(builder: (_) {
+      return Scaffold(
         body: RefreshIndicator(
           key: Key("aaaaa"),
-          onRefresh: getInfo,
+          onRefresh: getInfoForce,
           child: Container(
             margin: EdgeInsets.only(left: 10, right: 10, top: 30),
             child: Column(
@@ -80,93 +117,81 @@ class _ProdutosPageState extends State<ProdutosPage> {
                       color: Colors.teal,
                       fontWeight: FontWeight.bold),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: produtoStore.listaDeProdutos.length,
-                    itemBuilder: (ctx, idx) {
-                      produtoStore.listaDeProdutos
-                          .sort((a, b) => a.pontos.compareTo(b.pontos));
-                      var produto = produtoStore.listaDeProdutos[idx];
+                produtoStore.listaDeProdutos.isEmpty
+                    ? _empty()
+                    : Expanded(
+                        child: ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: produtoStore.listaDeProdutos.length,
+                          itemBuilder: (ctx, idx) {
+                            produtoStore.listaDeProdutos
+                                .sort((a, b) => a.pontos.compareTo(b.pontos));
+                            var produto = produtoStore.listaDeProdutos[idx];
 
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.of(context)
-                                .push(new MaterialPageRoute(builder: (context) {
-                              return new ProdutoInfo(produto: produto);
-                            }));
-                          },
-                          child: Container(
-                            child: ListTile(
-                              leading: FutureBuilder(
-                                future:
-                                    getImage("$host/storage/${produto.urlImg}"),
-                                builder: (_, AsyncSnapshot snapshot) {
-                                  print(snapshot.connectionState);
-
-                                  switch (snapshot.connectionState) {
-                                    case ConnectionState.none:
-                                      return Text('');
-                                    case ConnectionState.waiting:
-                                      return CircularProgressIndicator(
-                                        valueColor: AlwaysStoppedAnimation(Colors.teal),
-                                        strokeWidth: 2,
-                                      );
-                                    case ConnectionState.active:
-                                      return Text('');
-                                    case ConnectionState.done:
-                                      return snapshot.data;
-                                  }
-                                  return null;
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                      new MaterialPageRoute(builder: (context) {
+                                    return new ProdutoInfo(produto: produto);
+                                  }));
                                 },
-                              ),
-                              title: Text(
-                                "${produto.descricao.toUpperCase()}",
-                                style: GoogleFonts.poppins(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Pontos necessários: ${produto.pontos}",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
+                                child: Container(
+                                  child: ListTile(
+                                    leading: Container(
+                                        width: 100,
+                                        child: Image.network(
+                                            "$host/storage/${produto.urlImg}")),
+                                    title: Text(
+                                      "${produto.descricao.toUpperCase()}",
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Pontos necessários: ${produto.pontos}",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        double.parse(double.parse(userStore
+                                                        .usuario.pontos)
+                                                    .toStringAsFixed(2)) >=
+                                                produto.pontos
+                                            ? Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.orange,
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(10)),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    "Disponível para troca",
+                                                    style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              )
+                                            : Container()
+                                      ],
                                     ),
                                   ),
-                                  double.parse(double.parse(
-                                                  userStore.usuario.pontos)
-                                              .toStringAsFixed(2)) >=
-                                          produto.pontos
-                                      ? Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.orange,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              "Disponível para troca",
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        )
-                                      : Container()
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
                 Center(
                   child: Container(
                       margin: EdgeInsets.only(top: 10),
@@ -182,6 +207,18 @@ class _ProdutosPageState extends State<ProdutosPage> {
             ),
           ),
         ),
+      );
+    });
+  }
+
+  _empty() {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(child: Text("Carregando produtos, aguarde...")),
+        ],
       ),
     );
   }
